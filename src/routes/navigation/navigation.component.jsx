@@ -1,0 +1,27 @@
+import { Outlet, Link } from 'react-router-dom';
+import './navigation.styles.scss';
+import { Fragment } from 'react/jsx-runtime';
+import {ReactComponent as Pradalogo} from '../../assets/007 crown.svg';
+const Navigation =() =>{
+  return(
+    <Fragment>
+      <div className='navigation'>
+        <Link className='logo-container' to='/'>
+            <Pradalogo className='logo'/>
+        </Link>
+        
+        <div className='nav-links-container'>
+            <Link className='nav-link' to='/shop'>
+                SHOP
+            </Link>
+            <Link className='signIn-link' to='/signIn'>
+                SIGN IN
+            </Link>
+        </div>
+      </div>
+      <Outlet></Outlet>
+    </Fragment>
+  );
+};
+
+export default Navigation;
