@@ -18,7 +18,7 @@ const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({
     prompt: "select_account"
-});
+}); //"select_account" means: when the user clicks sign in, always ask which Google account they want.
 
 export const auth = getAuth();
 export const signInWithGooglePopup= () =>signInWithPopup(auth, googleProvider);
@@ -29,9 +29,9 @@ export const db = getFirestore();
 export const createUserDocumentFromAuth = async (userAuth, additionalInformation = {})=>{
     if (!userAuth) return;
     
-    const userDocRef = doc(db, 'users', userAuth.uid);
+    const userDocRef = doc(db, 'users', userAuth.uid); //a path in the database to that specific user
     
-    const userSnapshot = await getDoc(userDocRef);
+    const userSnapshot = await getDoc(userDocRef); // check if the user already has a record
     
     if(!userSnapshot.exists()){
         const {displayName, email} = userAuth;
