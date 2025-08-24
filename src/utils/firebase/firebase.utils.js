@@ -7,9 +7,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, collection, writeBatch, query, getDocs} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyA5GAirelLOCRvma4Ujk9URMiOlFxugEJM",
@@ -26,13 +27,43 @@ const googleProvider = new GoogleAuthProvider();
 
 googleProvider.setCustomParameters({
     prompt: "select_account"
-}); //"select_account" means: when the user clicks sign in, always ask which Google account they want.
+}); //"select_account" means: when the user clicks sign in, always ask which Google account they want
 
 export const auth = getAuth();
 export const signInWithGooglePopup= () =>signInWithPopup(auth, googleProvider);
 export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
 export const db = getFirestore();
 
+// this function was used to seed the shop product into the db for the first time, it was called in product.context using useEffect 
+export const addCollectionAndDocuments = async (collectionKey, objectsToAdd, field = 'title') => {
+  const collectionRef = collection(db, collectionKey);
+  const batch = writeBatch(db);
+
+  objectsToAdd.forEach((object) =>{ // loop over all the objects (categories) I want to insert
+    const docRef= doc(collectionRef, object[field].toLowerCase()); //creates a doc reference inside the collection and the ID of the doc = the category’s title.toLowerCase()
+    batch.set(docRef, object); // add this object into the batch
+  });
+
+  await batch.commit(); //executes all the writes in one go
+  console.log('done');
+
+};
+
+export const getCategoriesAndDocuments = async () =>{
+  const collectionRef = collection(db, 'categories'); //get the collection where all out categories live
+
+  const q = query(collectionRef); // build a query (here it just means “get everything”)
+
+  const querySnapshot = await getDocs(q); // get all documents in the collection
+  const categoryMap = querySnapshot.docs.reduce((acc,docSnapshot)=>{ // querySnapshot.docs = an array of all document snapshots, .reduce(...) transforms the array of documents into an object map
+    const {title, items} = docSnapshot.data(); 
+    acc[title.toLowerCase()] = items;
+    return acc;
+  }, {});
+
+  return categoryMap;
+
+}
 
 export const createUserDocumentFromAuth = async (userAuth, additionalInformation = {})=>{
     if (!userAuth) return;
