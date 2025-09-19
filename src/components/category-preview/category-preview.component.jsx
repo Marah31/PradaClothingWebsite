@@ -1,10 +1,12 @@
 import {CategoryPreviewContainer, CategoryPreviewTitle,Preview} from './category-preview.styles.jsx'
 import ProductCard from '../product-card/product-card.component';
-import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
 
 const CategoryPreview = ({title, products})=>{
     return(
         <CategoryPreviewContainer>
+            
             <h2>
                 <CategoryPreviewTitle to={title}>{title.toUpperCase()}</CategoryPreviewTitle>
             </h2>

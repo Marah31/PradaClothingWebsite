@@ -51,19 +51,12 @@ export const addCollectionAndDocuments = async (collectionKey, objectsToAdd, fie
 
 export const getCategoriesAndDocuments = async () =>{
   const collectionRef = collection(db, 'categories'); //get the collection where all out categories live
-
   const q = query(collectionRef); // build a query (here it just means “get everything”)
 
   const querySnapshot = await getDocs(q); // get all documents in the collection
-  const categoryMap = querySnapshot.docs.reduce((acc,docSnapshot)=>{ // querySnapshot.docs = an array of all document snapshots, .reduce(...) transforms the array of documents into an object map
-    const {title, items} = docSnapshot.data(); 
-    acc[title.toLowerCase()] = items;
-    return acc;
-  }, {});
-
-  return categoryMap;
-
-}
+  return querySnapshot.docs.map((docSnapshot) => docSnapshot.data());
+  
+};
 
 export const createUserDocumentFromAuth = async (userAuth, additionalInformation = {})=>{
     if (!userAuth) return;
@@ -102,3 +95,17 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
 export const signOutUser =async ()=> await signOut(auth);
 
 export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (userAuth) => {
+        unsubscribe(); // to prevent memory leak
+        resolve(userAuth);
+      },
+      reject
+    );
+  });
+};
+
